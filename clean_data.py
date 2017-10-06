@@ -2,6 +2,23 @@ import numpy as np
 import pandas as pd
 from datetime import datetime
 
+def save_to_pickle(df, save_as):
+    '''
+    Saves df as pickle
+
+    Inputs
+    ------
+    df: pandas dataframe
+    save_as: STR - name of pickle file
+
+    Output
+    ------
+    None
+    '''
+
+    df.to_pickle(save_as)
+    
+
 def convert_time(df, col):
     '''
     Converts time column from timestamp to datetime
