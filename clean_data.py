@@ -3,7 +3,7 @@ import pandas as pd
 from datetime import datetime
 
 
-def convert_time(df, col):
+def convert_time(df, col, create_duration=False):
     '''
     Converts time column from timestamp to datetime
 
@@ -25,6 +25,32 @@ def convert_time(df, col):
         df[col_name] = df[col_name].apply(lambda x: datetime.fromtimestamp(x))
     return df
 
+
+def create_duration_col(df, new_col_name, start_col, end_col, time_unit='days'):
+    '''
+    Creates a new column for the time elasped between the values of two current
+    time related columns in the dataframe. Returns a float value of the seconds
+    elasped between the two events
+
+    Inputs
+    ------
+    df: pandas dataframe
+    new_col_name: STR - name of new column to be constructed
+    start_col: STR -
+    end_col: STR -
+    time_unit: {'seconds', 'minutes', 'hours', 'days'} -
+
+    Output
+    ------
+    None
+    '''
+
+    time_conversion = {'seconds':1, 'minutes':60, 'hours':3600, 'days':86400}
+    n = time_conversion[time_unit]
+
+    dur = df[end_col] - df[start_col]
+    dur = dur.apply(lambda x: x.total_seconds()/n)
+    df[new_col_name] = dur
 
 def convert_fraud_col(df, col, drop_col=False):
     '''
@@ -78,14 +104,23 @@ def view_batch_data(df, start_col, end_col):
     view analytics of few columns
     '''
 
-    df[[start]]
+    # df[[start:end]]
+    pass
+
 
 def clean_data(df):
     '''
-    Cleans data columns
+    Cleans data columns. Must be run after convert_time funct.
     '''
 
     df['has_header'] = df['has_header'].fillna(0, inplace=True).apply(lambda x: int(x))
+
+    dur = df['event_end']-df['event_start']
+    dur = dur.apply(lambda x: x.total_seconds()/86400)
+    df['event_duration'] = dur
+    # last resort
+    df.dropna(inplace=True)
+
     return df
 
 
