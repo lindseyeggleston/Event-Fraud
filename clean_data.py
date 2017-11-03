@@ -2,22 +2,6 @@ import numpy as np
 import pandas as pd
 from datetime import datetime
 
-def save_to_pickle(df, save_as):
-    '''
-    Saves df as pickle
-
-    Inputs
-    ------
-    df: pandas dataframe
-    save_as: STR - name of pickle file
-
-    Output
-    ------
-    None
-    '''
-
-    df.to_pickle(save_as)
-    
 
 def convert_time(df, col):
     '''
@@ -36,10 +20,9 @@ def convert_time(df, col):
     if type(col) == str:
         col = list(col)
     for col_name in col:
-        date_lst = []
-        for i in range(df.shape[0]):
-            date_lst.append(int(datetime.fromtimestamp(df.loc[i,col_name]).strftime('%j')))
-        df[col_name] = np.array(date_lst)
+        if df[col_name].dtypes != 'int64':
+            df[col_name] = df[col_name].apply(lambda x: int(x))
+        df[col_name] = df[col_name].apply(lambda x: datetime.fromtimestamp(x))
     return df
 
 
@@ -88,6 +71,23 @@ def convert_spam_col(df, col, drop_col=False):
     df['spam'] = df[col].apply(lambda x: 1 if 'spam' in x else 0)
 
     return df
+
+
+def view_batch_data(df, start_col, end_col):
+    '''
+    view analytics of few columns
+    '''
+
+    df[[start]]
+
+def clean_data(df):
+    '''
+    Cleans data columns
+    '''
+
+    df['has_header'] = df['has_header'].fillna(0, inplace=True).apply(lambda x: int(x))
+    return df
+
 
 
 if __name__ == '__main__':
