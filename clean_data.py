@@ -3,26 +3,26 @@ import pandas as pd
 from datetime import datetime
 
 
-def convert_time(df, col, create_duration=False):
+def convert_time(df, cols):
     '''
     Converts time column from timestamp to datetime
 
     Inputs
     ------
     df: pandas dataframe
-    col: STR or LIST - column name(s) where values are timestamps
+    cols: STR or LIST - column name(s) where values are timestamps
 
     Output
     ------
     Returns a new dataframe with time column in datetime format
     '''
 
-    if type(col) == str:
-        col = list(col)
+    if type(cols) == str:
+        cols = list(cols)
 
-    df = df.dropna(subset = col)
+    df = df.dropna(subset = cols)
     df = df.reset_index(drop=True)
-    for col_name in col:
+    for col_name in cols:
         if df[col_name].dtypes != 'int64':
             df[col_name] = df[col_name].apply(lambda x: int(x))
         df[col_name] = df[col_name].apply(lambda x: datetime.fromtimestamp(x))
@@ -84,7 +84,7 @@ def convert_spam_col(df, col, drop_col=False):
     '''
     Creates new 'spam' label column containing dummy variables; 1 for spam,
     0 for not spam.
-    
+
     Inputs
     ------
     df: pandas dataframe
@@ -117,10 +117,10 @@ def clean_data(df):
     '''
 
     df['has_header'] = df['has_header'].fillna(0, inplace=True).apply(lambda x: int(x))
+    df['country'] = df['country'].apply(lambda x: '' if x==None else x)
+    df.drop('sale_duration', axis=1, inplace=True)
+    df.dropna(subset=['org_facebook','org_twitter'],inplace=True)
 
-    dur = df['event_end']-df['event_start']
-    dur = dur.apply(lambda x: x.total_seconds()/86400)
-    df['event_duration'] = dur
     # last resort
     df.dropna(inplace=True)
 
