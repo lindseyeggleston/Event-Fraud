@@ -19,6 +19,9 @@ def convert_time(df, col, create_duration=False):
 
     if type(col) == str:
         col = list(col)
+
+    df = df.dropna(subset = col)
+    df = df.reset_index(drop=True)
     for col_name in col:
         if df[col_name].dtypes != 'int64':
             df[col_name] = df[col_name].apply(lambda x: int(x))
@@ -81,7 +84,7 @@ def convert_spam_col(df, col, drop_col=False):
     '''
     Creates new 'spam' label column containing dummy variables; 1 for spam,
     0 for not spam.
-
+    
     Inputs
     ------
     df: pandas dataframe
@@ -128,5 +131,5 @@ def clean_data(df):
 if __name__ == '__main__':
     df = pd.read_pickle('data/data.pkl')
     df = convert_time(df, ['event_created','event_end','event_published','event_start'])
-    df = convert_fraud_col(df, 'acct_type')
-    df.drop('acct_type')
+    df = convert_fraud_col(df, 'acct_type', True)
+    df.to_pickle('data/clean_data.pkl')
