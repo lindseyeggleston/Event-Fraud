@@ -29,32 +29,6 @@ def convert_time(df, cols):
     return df
 
 
-def create_duration_col(df, new_col_name, start_col, end_col, time_unit='days'):
-    '''
-    Creates a new column for the time elasped between the values of two current
-    time related columns in the dataframe. Returns a float value of the seconds
-    elasped between the two events
-
-    Inputs
-    ------
-    df: pandas dataframe
-    new_col_name: STR - name of new column to be constructed
-    start_col: STR -
-    end_col: STR -
-    time_unit: {'seconds', 'minutes', 'hours', 'days'} -
-
-    Output
-    ------
-    None
-    '''
-
-    time_conversion = {'seconds':1, 'minutes':60, 'hours':3600, 'days':86400}
-    n = time_conversion[time_unit]
-
-    dur = df[end_col] - df[start_col]
-    dur = dur.apply(lambda x: x.total_seconds()/n)
-    df[new_col_name] = dur
-
 def convert_fraud_col(df, col, drop_col=False):
     '''
     Creates new 'fraud' label column containing dummy variables; 1 for fraud,
@@ -104,55 +78,29 @@ def convert_spam_col(df, col, drop_col=False):
     return df
 
 
-def _ticket_spread(lst):
-    cost = set()
-    for ticket in lst:
-        cost.add(ticket['cost'])
-    spread = max(cost) - min(cost)
-    return spread
-
-
-def _avg_ticket_price(lst):
-    cost = []
-    num_tickets = []
-    price = 0
-    for ticket in lst:
-        cost.append(ticket['cost'])
-        num_tickets.append(ticket['quantity_total'])
-    for i in range(len(cost)):
-        price += cost[i] * num_tickets[i]/sum(num_tickets)
-    return price
-
-
-def _percent_tickets_sold(lst):
-    sold = 0
-    total = 0
-    for ticket in lst:
-        sold += ticket['quantity_sold']
-        total += ticket['quantity_total']
-    if total != 0:
-        return (total - sold)/total
-    else:
-        return 0
-
-
-def extract_ticket_info(df, col='ticket_types', drop_col=False):
-    df['num_ticket_types'] = df[col].apply(lambda x: len(x))
-    df['price_spread'] = df[col].apply(lambda x: _ticket_spread(x))
-    df['avg_ticket_price'] = df[col].apply(lambda x: _percent_tickets_sold(x))
-    if drop_col == True:
-        df.drop(col, axis=1, inplace=True)
-    pass
-
-
-def clean_data(df):
+def clean_data(df, time_cols):
     '''
-    Cleans data columns. Must be run after convert_time funct.
+    Cleans data columns and drops NaN values.
+
+    Inputs
+    ------
+    df: Pandas DataFrame
+    time_cols: LIST or STR - columns to be convert_time into datetime object
+
+    Output
+    ------
+    A cleaned DataFrame
     '''
 
+    df = convert_time(df, time_cols)
+    
     df['has_header'] = df['has_header'].fillna(0, inplace=True).apply(lambda x: int(x))
     df['country'] = df['country'].apply(lambda x: '' if x==None else x)
-    df.drop('sale_duration', axis=1, inplace=True)
+    df['delivery_method'] = df['delivery_method'].apply(lambda x: int(x))
+    df['listed'] = df['listed'].apply(lambda x: 1 if x=='y' else 0)
+
+    df.drop(['sale_duration','venue_country','venue_latitude','venue_longitude',
+            'venue_name','venue_state'], axis=1, inplace=True)
     df.dropna(subset=['org_facebook','org_twitter'],inplace=True)
 
     # last resort
@@ -164,6 +112,9 @@ def clean_data(df):
 
 if __name__ == '__main__':
     df = pd.read_pickle('data/data.pkl')
-    df = convert_time(df, ['event_created','event_end','event_published','event_start'])
+    time_cols = ['event_created','event_end','event_published','event_start',
+            'approx_payout_date','user_created']
+    df = clean_data(df, time_cols)
     df = convert_fraud_col(df, 'acct_type', True)
-    df.to_pickle('data/clean_data.pkl')
+
+    # df.to_pickle('data/clean_data.pkl')
