@@ -98,3 +98,4 @@ if __name__ == '__main__':
     dur_cols = {'event_duration':['event_start','event_end'], 'creation_duration':
             ['user_created','event_created']}
     df = create_duration_cols(df, dur_cols)
+    df.to_pickle('data/clean_data2.pkl')

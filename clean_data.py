@@ -6,12 +6,10 @@ from datetime import datetime
 def convert_time(df, cols):
     '''
     Converts time column from timestamp to datetime
-
     Inputs
     ------
     df: pandas dataframe
     cols: STR or LIST - column name(s) where values are timestamps
-
     Output
     ------
     Returns a new dataframe with time column in datetime format
@@ -33,14 +31,12 @@ def convert_fraud_col(df, col, drop_col=False):
     '''
     Creates new 'fraud' label column containing dummy variables; 1 for fraud,
     0 for not fraud.
-
     Inputs
     ------
     df: pandas dataframe
     col: STR - column name where values are strings indicating fraud or not
         fraud
     drop_col: BOOL - if true, will drop col from dataframe
-
     Output
     ------
     Returns a new dataframe with fraud column labeled 1 for fraudulant event
@@ -58,13 +54,11 @@ def convert_spam_col(df, col, drop_col=False):
     '''
     Creates new 'spam' label column containing dummy variables; 1 for spam,
     0 for not spam.
-
     Inputs
     ------
     df: pandas dataframe
     col: STR - column name that contains spam labels as a string
     drop_col: BOOL - if True, will drop col from dataframe
-
     Output
     ------
     Returns a new dataframe with spam column labeled 1 for spam event
@@ -81,12 +75,10 @@ def convert_spam_col(df, col, drop_col=False):
 def clean_data(df, time_cols):
     '''
     Cleans data columns and drops NaN values.
-
     Inputs
     ------
     df: Pandas DataFrame
     time_cols: LIST or STR - columns to be convert_time into datetime object
-
     Output
     ------
     A cleaned DataFrame
