@@ -94,14 +94,16 @@ def clean_data(df, time_cols):
 
     df = convert_time(df, time_cols)
 
-    df['has_header'] = df['has_header'].fillna(0, inplace=True).apply(lambda x: int(x))
+    df['has_header'] = df['has_header'].fillna(0).apply(lambda x: int(x))
     df['country'] = df['country'].apply(lambda x: '' if x==None else x)
-    df['delivery_method'] = df['delivery_method'].apply(lambda x: int(x))
     df['listed'] = df['listed'].apply(lambda x: 1 if x=='y' else 0)
 
     df.drop(['sale_duration','venue_country','venue_latitude','venue_longitude',
             'venue_name','venue_state','user_age'], axis=1, inplace=True)
-    df.dropna(subset=['org_facebook','org_twitter'],inplace=True)
+    df.dropna(subset=['org_facebook','org_twitter','delivery_method'],inplace=True)
+    df['org_facebook'] = df['org_facebook'].apply(lambda x: int(x))
+    df['org_twitter'] = df['org_twitter'].apply(lambda x: int(x))
+    df['delivery_method'] = df['delivery_method'].apply(lambda x: int(x))
 
     # last resort
     df.dropna(inplace=True)
