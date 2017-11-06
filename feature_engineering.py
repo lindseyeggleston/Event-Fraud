@@ -29,6 +29,29 @@ def create_duration_col(df, new_col_name, start_col, end_col, time_unit='days'):
     df[new_col_name] = dur
 
 
+def create_duration_cols(df, cols, time_unit='days'):
+    '''
+    Creates multiple time duration related columns using the create_duration_col
+    function.
+
+    Inputs
+    ------
+    df: Pandas DataFrame
+    cols: DICT - a dictionary with all string values. the keys represent a new
+        column name and the values are lists containing the start and stop
+        columns from the dataframe; e.g. [start_time, stop_time].
+    time_unit: {'seconds', 'minutes', 'hours', 'days'} -
+
+    Output
+    ------
+    A dataframe with time duration related columns
+    '''
+
+    for k, v in cols.items():
+        create_duration_col(df, k, v[0], v[1], time_unit)
+    return df
+
+
 def _ticket_spread(lst):
     cost = set()
     for ticket in lst:
@@ -68,3 +91,9 @@ def extract_ticket_info(df, col='ticket_types', drop_col=False):
     if drop_col == True:
         df.drop(col, axis=1, inplace=True)
     pass
+
+if __name__ == '__main__':
+    df = pd.read_pickle('data/clean_data.pkl')
+    dur_cols = {'event_duration':['event_start','event_end'], 'creation_duration':
+            ['user_created','event_created']}
+    df = create_duration_cols(df, dur_cols)

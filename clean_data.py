@@ -93,14 +93,14 @@ def clean_data(df, time_cols):
     '''
 
     df = convert_time(df, time_cols)
-    
+
     df['has_header'] = df['has_header'].fillna(0, inplace=True).apply(lambda x: int(x))
     df['country'] = df['country'].apply(lambda x: '' if x==None else x)
     df['delivery_method'] = df['delivery_method'].apply(lambda x: int(x))
     df['listed'] = df['listed'].apply(lambda x: 1 if x=='y' else 0)
 
     df.drop(['sale_duration','venue_country','venue_latitude','venue_longitude',
-            'venue_name','venue_state'], axis=1, inplace=True)
+            'venue_name','venue_state','user_age'], axis=1, inplace=True)
     df.dropna(subset=['org_facebook','org_twitter'],inplace=True)
 
     # last resort
@@ -117,4 +117,4 @@ if __name__ == '__main__':
     df = clean_data(df, time_cols)
     df = convert_fraud_col(df, 'acct_type', True)
 
-    # df.to_pickle('data/clean_data.pkl')
+    df.to_pickle('data/clean_data.pkl')
