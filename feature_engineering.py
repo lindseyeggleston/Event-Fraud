@@ -91,11 +91,11 @@ def extract_ticket_info(df, col='ticket_types', drop_col=False):
 
     if drop_col == True:
         df.drop(col, axis=1, inplace=True)
-    
+
 
 if __name__ == '__main__':
     df = pd.read_pickle('data/clean_data.pkl')
-    dur_cols = {'event_duration':['event_start','event_end'], 'creation_duration':
+    dur_cols = {'event_duration':['event_start','event_end'], 'user_duration':
             ['user_created','event_created']}
     df = create_duration_cols(df, dur_cols)
     df.to_pickle('data/clean_data2.pkl')
