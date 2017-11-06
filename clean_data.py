@@ -98,16 +98,50 @@ def convert_spam_col(df, col, drop_col=False):
     '''
 
     df['spam'] = df[col].apply(lambda x: 1 if 'spam' in x else 0)
+    if drop_col == True:
+        df.drop(col, axis=1, inplace=True)
 
     return df
 
 
-def view_batch_data(df, start_col, end_col):
-    '''
-    view analytics of few columns
-    '''
+def _ticket_spread(lst):
+    cost = set()
+    for ticket in lst:
+        cost.add(ticket['cost'])
+    spread = max(cost) - min(cost)
+    return spread
 
-    # df[[start:end]]
+
+def _avg_ticket_price(lst):
+    cost = []
+    num_tickets = []
+    price = 0
+    for ticket in lst:
+        cost.append(ticket['cost'])
+        num_tickets.append(ticket['quantity_total'])
+    for i in range(len(cost)):
+        price += cost[i] * num_tickets[i]/sum(num_tickets)
+    return price
+
+
+def _percent_tickets_sold(lst):
+    sold = 0
+    total = 0
+    for ticket in lst:
+        sold += ticket['quantity_sold']
+        total += ticket['quantity_total']
+    if total != 0:
+        return (total - sold)/total
+    else:
+        return 0
+
+
+def extract_ticket_info(df, col='ticket_types', drop_col=False):
+    df['num_ticket_types'] = df[col].apply(lambda x: len(x))
+    df['price_spread'] = df[col].apply(lambda x: _ticket_spread(x))
+    df['avg_ticket_price'] = df[col].apply(lambda x: _percent_tickets_sold(x))
+    if drop_col == True:
+        df.drop(col, axis=1, inplace=True)
     pass
 
 
