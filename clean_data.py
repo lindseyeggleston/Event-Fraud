@@ -86,7 +86,7 @@ def clean_data(df, time_cols):
     ------
     df: Pandas DataFrame
     time_cols: LIST or STR - columns to be convert_time into datetime object
-    
+
     Output
     ------
     A cleaned DataFrame
@@ -99,11 +99,12 @@ def clean_data(df, time_cols):
     df['listed'] = df['listed'].apply(lambda x: 1 if x=='y' else 0)
 
     df.drop(['sale_duration','venue_country','venue_latitude','venue_longitude',
-            'venue_name','venue_state','user_age'], axis=1, inplace=True)
+            'venue_name','venue_state','user_age','previous_payout',
+            'approx_payout_date'], axis=1, inplace=True)
     df.dropna(subset=['org_facebook','org_twitter','delivery_method'],inplace=True)
-    df['org_facebook'] = df['org_facebook'].apply(lambda x: int(x))
-    df['org_twitter'] = df['org_twitter'].apply(lambda x: int(x))
-    df['delivery_method'] = df['delivery_method'].apply(lambda x: int(x))
+
+    for col in ['org_twitter','org_facebook','delivery_method']:
+        df[col] = df[col].apply(lambda x: int(x))
 
     # last resort
     df.dropna(inplace=True)
