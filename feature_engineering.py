@@ -88,9 +88,10 @@ def extract_ticket_info(df, col='ticket_types', drop_col=False):
     df['num_ticket_types'] = df[col].apply(lambda x: len(x))
     df['price_spread'] = df[col].apply(lambda x: _ticket_spread(x))
     df['avg_ticket_price'] = df[col].apply(lambda x: _percent_tickets_sold(x))
+
     if drop_col == True:
         df.drop(col, axis=1, inplace=True)
-    pass
+    
 
 if __name__ == '__main__':
     df = pd.read_pickle('data/clean_data.pkl')
