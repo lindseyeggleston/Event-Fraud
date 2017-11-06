@@ -4,9 +4,6 @@ from sklearn.metrics import auc, roc_auc_score, roc_curve, precision_recall_curv
 from scipy import interp
 import matplotlib.pyplot as plt
 plt.style.use('ggplot')
-from imblearn.combine import SMOTETomek, SMOTEENN
-from imblearn.over_sampling import SMOTE
-# from imblearn.under_sampling import TomekLinks, AllKNN
 
 def plot_ROC_curve(classifiers, X, y, benchmarks=None, balancing=[], pos_label=1, n_folds=5, save_path=None):
     '''
@@ -17,6 +14,7 @@ def plot_ROC_curve(classifiers, X, y, benchmarks=None, balancing=[], pos_label=1
     Output:
     -a single plot with ROC curves for all balancing-classifier combinations
     '''
+
     plt.close('all')
     fig, ax = plt.subplots(figsize=(8,8))
     plt.rcParams.update({'font.size': 14, 'axes.labelsize': 16, 'xtick.labelsize': 16, 'ytick.labelsize': 16})
@@ -33,15 +31,8 @@ def plot_ROC_curve(classifiers, X, y, benchmarks=None, balancing=[], pos_label=1
             ax.plot(mean_fpr, mean_tpr, label=cl.__class__.__name__ + ' (AUC = %0.3f)' % mean_auc, lw=2, zorder=1)
 
     ax.plot([0, 1], [0, 1], '--', color='black', label='Random')
-    # plt.axhline(y=.6, color='grey')
     ax.set_xlim([-0.05, 1.05])
     ax.set_ylim([-0.05, 1.05])
-    # ax.spines['bottom'].set_color('grey')
-    # ax.xaxis.label.set_color('grey')
-    # ax.tick_params(axis='x', colors='grey')
-    # ax.tick_params(axis='y', colors='grey')
-    # ax.spines['left'].set_color('grey')
-    # ax.yaxis.label.set_color('grey')
 
     ax.xaxis.labelpad = 15
     ax.yaxis.labelpad = 15
