@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 from datetime import datetime
 
-
 def convert_time(df, cols):
     '''
     Converts time column from timestamp to datetime
@@ -86,7 +85,7 @@ def clean_data(df, time_cols):
     ------
     df: Pandas DataFrame
     time_cols: LIST or STR - columns to be convert_time into datetime object
-    
+
     Output
     ------
     A cleaned DataFrame
