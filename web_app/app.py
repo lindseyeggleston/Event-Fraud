@@ -1,10 +1,10 @@
-from flask import Flask, request
+from flask import Flask, request, render_template
 app = Flask(__name__)
 
 # Home page
 @app.route('/')
 def cover():
-    pass
+    return render_template('cover_index.html')
 
 # Cost/benefit page
 @app.route('/cost_benefit', methods=['GET', 'POST'])
