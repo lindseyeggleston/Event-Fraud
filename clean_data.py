@@ -98,7 +98,7 @@ def clean_data(df, time_cols):
     df['listed'] = df['listed'].apply(lambda x: 1 if x=='y' else 0)
 
     df.drop(['sale_duration','venue_country','venue_latitude','venue_longitude',
-            'venue_name','venue_state','user_age','previous_payout',
+            'venue_name','venue_state','user_age','previous_payouts',
             'approx_payout_date'], axis=1, inplace=True)
     df.dropna(subset=['org_facebook','org_twitter','delivery_method'],inplace=True)
 
