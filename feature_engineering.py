@@ -56,6 +56,8 @@ def _ticket_spread(lst):
     cost = set()
     for ticket in lst:
         cost.add(ticket['cost'])
+    if len(cost) == 0:
+        return -1
     spread = max(cost) - min(cost)
     return spread
 
@@ -98,4 +100,5 @@ if __name__ == '__main__':
     dur_cols = {'event_duration':['event_start','event_end'], 'user_duration':
             ['user_created','event_created']}
     df = create_duration_cols(df, dur_cols)
+    extract_ticket_info(df, drop_col=True)
     df.to_pickle('data/clean_data2.pkl')
