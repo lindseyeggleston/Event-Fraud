@@ -6,7 +6,7 @@ app = Flask(__name__)
 def cover():
     pass
 
-# Cost/benift page
+# Cost/benefit page
 @app.route('/cost_benefit', methods=['GET', 'POST'])
 def cost_benefit():
     benefit = int(request.form['Average savings (per case) of correct early fraud detection:'])
