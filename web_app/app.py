@@ -9,8 +9,8 @@ def cover():
 # Cost/benift page
 @app.route('/cost_benefit', methods=['GET', 'POST'])
 def cost_benefit():
-    benefit = int(request.form['Average savings (per case) of correct early fraud detection:'])
-    cost = int(request.form['Average cost (per case) of investigating possible fraud:'])
+    # benefit = int(request.form['Average savings (per case) of correct early fraud detection:'])
+    # cost = int(request.form['Average cost (per case) of investigating possible fraud:'])
     return render_template('cover_cost-benefit.html')
 
 if __name__ == '__main__':
