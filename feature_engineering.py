@@ -110,20 +110,37 @@ def _unique_words(st):
         word_dic[word] += 1
     return word_dic
 
-def extract_description_text(df, description_col, new_col, unique_words=False,
-        return_df=False, drop_col=False):
-    temp = [_extract_text(entry) for entry in df[description_col]]
-    df[new_col] = temp
+def extract_description_text(df, description_col, unique_words=False,
+        drop_col=False):
+    '''
+    des
 
-    df['word_length'] = df[new_col].apply(lambda x: len(x.split()))
-    df['nunique_words'] = df[new_col].apply(lambda x: len(set(x.split())))
+    Inputs
+    ------
+    df: pandas DataFrame
+    description_col: STR - name of column containing html content is string form
+    unique_words: BOOL - when True, creates a new column containing dictionary
+        of unique_words and the number of there occurances
+    drop_col: BOOL - when True, will remove description_col from DataFrame
+
+    Outputs
+    -------
+    pandas DataFrame with new columns 'text', 'text_length', and 'nunique_words'
+    (and potentially 'unique_words')
+    '''
+
+    temp = [_extract_text(entry) for entry in df[description_col]]
+
+    df['text'] = temp
+    df['text_length'] = df['text'].apply(lambda x: len(x.split()))
+    df['nunique_words'] = df['text'].apply(lambda x: len(set(x.split())))
 
     if unique_words:
-        df['unique_words'] = df[new_col].apply(lambda x: _unique_words(x.split()))
+        df['unique_words'] = df['text'].apply(lambda x: _unique_words(x.split()))
     if drop_col:
-        df.drop(description_col, axis=1, inplace=true)
-    if return_df:
-        return df
+        df = df.drop(description_col, axis=1)
+
+    return df
 
 
 if __name__ == '__main__':
@@ -132,4 +149,5 @@ if __name__ == '__main__':
             ['user_created','event_created']}
     df = create_duration_cols(df, dur_cols)
     extract_ticket_info(df, drop_col=True)
-    df.to_pickle('data/clean_data2.pkl')
+    df = extract_description_text(df, 'description')
+    df.to_pickle('data/clean_data3.pkl')
