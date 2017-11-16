@@ -54,6 +54,10 @@ def create_duration_cols(df, cols, time_unit='days'):
 
 
 def _ticket_spread(lst):
+    '''
+    Calculates the price difference between the most and least expensive ticket
+    types
+    '''
     cost = set()
     for ticket in lst:
         cost.add(ticket['cost'])
@@ -64,6 +68,9 @@ def _ticket_spread(lst):
 
 
 def _avg_ticket_price(lst):
+    '''
+    Calculated the average ticket price
+    '''
     cost = []
     num_tickets = []
     price = 0
@@ -76,6 +83,10 @@ def _avg_ticket_price(lst):
 
 
 def _percent_tickets_sold(lst):
+    '''
+    Returns the percentage of tickets sold out of total available
+    '''
+
     sold = 0
     total = 0
     for ticket in lst:
@@ -88,14 +99,35 @@ def _percent_tickets_sold(lst):
 
 
 def extract_ticket_info(df, col='ticket_types', drop_col=False):
+    '''
+    Extract ticket information such as the spread between ticket price values,
+    number of ticket types, and the average ticket price
+
+    Inputs
+    ------
+    df: pandas DataFrame
+    col: STR - (default = 'ticket_types') name of column containing ticket
+        information
+    drop_col: BOOL - if True, removes 'col' from df
+
+    Output
+    ------
+    pandas DataFrame
+    '''
+
     df['num_ticket_types'] = df[col].apply(lambda x: len(x))
     df['price_spread'] = df[col].apply(lambda x: _ticket_spread(x))
     df['avg_ticket_price'] = df[col].apply(lambda x: _percent_tickets_sold(x))
 
     if drop_col == True:
         df.drop(col, axis=1, inplace=True)
+    return df
 
 def _extract_text(st):
+    '''
+    Extract text from <p> tags in html string
+    '''
+
     soup = BeautifulSoup(st,'html.parser')
     p = soup.find_all('p')
     text = ''
@@ -103,27 +135,49 @@ def _extract_text(st):
         text += i.text
     return text
 
-def _unique_words(st):
-    words = st.split()
+def _unique_words(text):
+    '''
+    Creates dictionary of unique words (keys) and their occurances (values)
+    in text
+    '''
+
+    words = text.split()
     word_dic = {(word, 0) for word in set(words)}
     for word in words:
         word_dic[word] += 1
     return word_dic
 
-def extract_description_text(df, description_col, new_col, unique_words=False,
-        return_df=False, drop_col=False):
-    temp = [_extract_text(entry) for entry in df[description_col]]
-    df[new_col] = temp
+def extract_description_text(df, description_col, unique_words=False,
+        drop_col=False):
+    '''
+    Extracts text data from description_col and engineers new columns related to
+    that text.
 
-    df['word_length'] = df[new_col].apply(lambda x: len(x.split()))
-    df['nunique_words'] = df[new_col].apply(lambda x: len(set(x.split())))
+    Inputs
+    ------
+    df: pandas DataFrame
+    description_col: STR - name of column containing html content is string form
+    unique_words: BOOL - when True, creates a new column containing dictionary
+        of unique_words and the number of there occurances
+    drop_col: BOOL - when True, will remove description_col from DataFrame
+
+    Outputs
+    -------
+    pandas DataFrame
+    '''
+
+    temp = [_extract_text(entry) for entry in df[description_col]]
+
+    df['text'] = temp
+    df['text_length'] = df['text'].apply(lambda x: len(x.split()))
+    df['nunique_words'] = df['text'].apply(lambda x: len(set(x.split())))
 
     if unique_words:
-        df['unique_words'] = df[new_col].apply(lambda x: _unique_words(x.split()))
+        df['unique_words'] = df['text'].apply(lambda x: _unique_words(x.split()))
     if drop_col:
-        df.drop(description_col, axis=1, inplace=true)
-    if return_df:
-        return df
+        df = df.drop(description_col, axis=1)
+
+    return df
 
 
 if __name__ == '__main__':
@@ -131,5 +185,6 @@ if __name__ == '__main__':
     dur_cols = {'event_duration':['event_start','event_end'], 'user_duration':
             ['user_created','event_created']}
     df = create_duration_cols(df, dur_cols)
-    extract_ticket_info(df, drop_col=True)
-    df.to_pickle('data/clean_data2.pkl')
+    df = extract_ticket_info(df, drop_col=True)
+    df = extract_description_text(df, 'description')
+    df.to_pickle('data/clean_data3.pkl')
