@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from datetime import datetime
+from bs4 import BeautifulSoup
 
 def create_duration_col(df, new_col_name, start_col, end_col, time_unit='days'):
     '''
@@ -93,6 +94,36 @@ def extract_ticket_info(df, col='ticket_types', drop_col=False):
 
     if drop_col == True:
         df.drop(col, axis=1, inplace=True)
+
+def _extract_text(st):
+    soup = BeautifulSoup(st,'html.parser')
+    p = soup.find_all('p')
+    text = ''
+    for i in p:
+        text += i.text
+    return text
+
+def _unique_words(st):
+    words = st.split()
+    word_dic = {(word, 0) for word in set(words)}
+    for word in words:
+        word_dic[word] += 1
+    return word_dic
+
+def extract_description_text(df, description_col, new_col, unique_words=False,
+        return_df=False, drop_col=False):
+    temp = [_extract_text(entry) for entry in df[description_col]]
+    df[new_col] = temp
+
+    df['word_length'] = df[new_col].apply(lambda x: len(x.split()))
+    df['nunique_words'] = df[new_col].apply(lambda x: len(set(x.split())))
+
+    if unique_words:
+        df['unique_words'] = df[new_col].apply(lambda x: _unique_words(x.split()))
+    if drop_col:
+        df.drop(description_col, axis=1, inplace=true)
+    if return_df:
+        return df
 
 
 if __name__ == '__main__':
