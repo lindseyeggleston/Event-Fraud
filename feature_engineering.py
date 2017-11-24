@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import re
 from datetime import datetime
 from bs4 import BeautifulSoup
 
@@ -133,6 +134,8 @@ def _extract_text(st):
     text = ''
     for i in p:
         text += i.text
+        text += ' '
+    text = re.sub('\s+',' ', text).strip()
     return text
 
 def _unique_words(text):
@@ -182,7 +185,7 @@ def extract_description_text(df, description_col, unique_words=False,
 
 if __name__ == '__main__':
     df = pd.read_pickle('data/clean_data.pkl')
-    dur_cols = {'event_duration':['event_start','event_end'], 'user_duration':
+    dur_cols = {'event_duration':['event_start','event_end'], 'user_creation_duration':
             ['user_created','event_created']}
     df = create_duration_cols(df, dur_cols)
     df = extract_ticket_info(df, drop_col=True)
