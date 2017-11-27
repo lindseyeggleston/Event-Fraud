@@ -3,6 +3,7 @@ import numpy as np
 import re
 from datetime import datetime
 from bs4 import BeautifulSoup
+from collections import defaultdict
 
 def create_duration_col(df, new_col_name, start_col, end_col, time_unit='days'):
     '''
@@ -63,7 +64,7 @@ def _ticket_spread(lst):
     for ticket in lst:
         cost.add(ticket['cost'])
     if len(cost) == 0:
-        return -1
+        return 0
     spread = max(cost) - min(cost)
     return spread
 
@@ -72,15 +73,14 @@ def _avg_ticket_price(lst):
     '''
     Calculated the average ticket price
     '''
-    cost = []
-    num_tickets = []
-    price = 0
+    cost = 0
+    num_tickets = 0
     for ticket in lst:
-        cost.append(ticket['cost'])
-        num_tickets.append(ticket['quantity_total'])
-    for i in range(len(cost)):
-        price += cost[i] * num_tickets[i]/sum(num_tickets)
-    return price
+        cost += ticket['cost']*ticket['quantity_total']
+        num_tickets += ticket['quantity_total']
+    if num_tickets == 0:
+        return 0
+    return round(sum(cost)/num_tickets, 2)
 
 
 def _percent_tickets_sold(lst):
@@ -98,6 +98,15 @@ def _percent_tickets_sold(lst):
     else:
         return 0
 
+def _free_event(ticket_types):
+    '''
+    Check cost of tickets for free event.
+    '''
+    free = 0
+    for ticket_type in ticket_types:
+        if ticket_type['cost'] == 0:
+            free = 1
+    return free
 
 def extract_ticket_info(df, col='ticket_types', drop_col=False):
     '''
@@ -130,12 +139,12 @@ def _extract_text(st):
     '''
 
     soup = BeautifulSoup(st,'html.parser')
-    p = soup.find_all('p')
-    text = ''
-    for i in p:
-        text += i.text
-        text += ' '
+    text = soup.text
     text = re.sub('\s+',' ', text).strip()
+
+    soup2 = BeautifulSoup(text, 'lxml')
+    text = soup2.text
+
     return text
 
 def _unique_words(text):
@@ -144,8 +153,8 @@ def _unique_words(text):
     in text
     '''
 
-    words = text.split()
-    word_dic = {(word, 0) for word in set(words)}
+    words = re.sub('[\.,\?:!"\(\)]', '', text.lower()).split()
+    word_dic = defaultdict(int)
     for word in words:
         word_dic[word] += 1
     return word_dic
@@ -173,10 +182,10 @@ def extract_description_text(df, description_col, unique_words=False,
 
     df['text'] = temp
     df['text_length'] = df['text'].apply(lambda x: len(x.split()))
-    df['nunique_words'] = df['text'].apply(lambda x: len(set(x.split())))
+    df['nunique_words'] = df['text'].apply(lambda x: len(_unique_words(x)))
 
     if unique_words:
-        df['unique_words'] = df['text'].apply(lambda x: _unique_words(x.split()))
+        df['unique_words'] = df['text'].apply(lambda x: _unique_words(x))
     if drop_col:
         df = df.drop(description_col, axis=1)
 
@@ -188,6 +197,6 @@ if __name__ == '__main__':
     dur_cols = {'event_duration':['event_start','event_end'], 'user_creation_duration':
             ['user_created','event_created']}
     df = create_duration_cols(df, dur_cols)
-    df = extract_ticket_info(df, drop_col=True)
+    df = extract_ticket_info(df)
     df = extract_description_text(df, 'description')
-    df.to_pickle('data/clean_data3.pkl')
+    # df.to_pickle('data/clean_data3.pkl')

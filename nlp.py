@@ -34,7 +34,7 @@ def _special_chars(text):
         return defaultdict(int)
     special_chars = defaultdict(int)
     for char in text:
-        if re.match('[^\w\s\.,]', char) != None:
+        if re.match('[^\w\s\.,]', char) is not None:
             special_chars[char] += 1
     return special_chars
 
@@ -74,6 +74,6 @@ def special_char_count(df, char, col_name):
 if __name__ == "__main__":
     df = pd.read_pickle('data/clean_data3.pkl')
     special_chars(df, 'text', return_count=True)
-    special_char_count(df,'!','apost_count')
+    special_char_count(df,'!','exclam_count')
     special_char_count(df, ['@','&'], ['comm_at_count','amp_count'])
     print(df.head())
