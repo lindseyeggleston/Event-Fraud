@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import re
 from datetime import datetime
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, CData
 
 def create_duration_col(df, new_col_name, start_col, end_col, time_unit='days'):
     '''
@@ -130,12 +130,12 @@ def _extract_text(st):
     '''
 
     soup = BeautifulSoup(st,'html.parser')
-    p = soup.find_all('p')
-    text = ''
-    for i in p:
-        text += i.text
-        text += ' '
+    text = soup.text
     text = re.sub('\s+',' ', text).strip()
+
+    soup2 = BeautifulSoup(text, 'lxml')
+    text = soup2.text
+
     return text
 
 def _unique_words(text):
