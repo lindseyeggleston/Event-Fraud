@@ -11,7 +11,7 @@ def preprocess(filename):
     X = pd.read_pickle(filename)
     X = X.reset_index(drop=True)
     y = X.pop('fraud').values
-    numeric_columns = ['body_length', 'name_length', 'num_order', 'num_payouts', 'sale_duration2', 'event_duration', 'creation_duration']
+    numeric_columns = ['body_length', 'name_length', 'num_order', 'num_payouts', 'sale_duration2', 'event_duration', 'user_creation_duration']
     #Shoud we remove num_order, num_payouts?  May be leakage -- small number will often imply that event sales were shut down.
     ss = StandardScaler()
     X[numeric_columns] = ss.fit_transform(X[numeric_columns])
@@ -20,7 +20,7 @@ def preprocess(filename):
     return X, y
 
 if __name__ == '__main__':
-    X, y = preprocess('data/clean_data2.pkl')
+    X, y = preprocess('data/clean_data3.pkl')
     # X_train, X_test, y_train, y_test = preprocess('data/clean_data2.pkl')
     xg1 = XGBClassifier(seed=42)
     xg2 = XGBClassifier(scale_pos_weight=10, max_delta_step=1, colsample_bytree=.5, colsample_bylevel=.8, seed=42)
