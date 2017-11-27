@@ -101,12 +101,13 @@ def clean_data(df, time_cols):
             'venue_name','venue_state','user_age','previous_payouts',
             'approx_payout_date'], axis=1, inplace=True)
     df.dropna(subset=['org_facebook','org_twitter','delivery_method'],inplace=True)
+    df.drop(df[df['sale_duration2']<0].index)
 
     for col in ['org_twitter','org_facebook','delivery_method']:
         df[col] = df[col].apply(lambda x: int(x))
 
     # last resort
-    df.dropna(inplace=True)
+    df.dropna(inplace=True).reset_index()
 
     return df
 
