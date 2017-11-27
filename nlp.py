@@ -34,7 +34,7 @@ def _special_chars(text):
         return defaultdict(int)
     special_chars = defaultdict(int)
     for char in text:
-        if re.match('[^\w\s\.,]', char) != None:
+        if re.match('[^\w\s\.,]', char) is not None:
             special_chars[char] += 1
     return special_chars
 
