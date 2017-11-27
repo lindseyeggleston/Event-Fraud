@@ -74,6 +74,6 @@ def special_char_count(df, char, col_name):
 if __name__ == "__main__":
     df = pd.read_pickle('data/clean_data3.pkl')
     special_chars(df, 'text', return_count=True)
-    special_char_count(df,'!','apost_count')
+    special_char_count(df,'!','exclam_count')
     special_char_count(df, ['@','&'], ['comm_at_count','amp_count'])
     print(df.head())
