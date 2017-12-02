@@ -13,7 +13,6 @@ def preprocess(filename):
     X['fb_zero'] = _org_facebook_indicator(X)
     X['check_payout'] = _check_payout_indicator(X)
 
-    #scale numeric columns
     numeric_columns = ['body_length', 'name_length', 'sale_duration2', 'event_duration',\
      'user_creation_duration', 'num_ticket_types', 'price_spread', \
      'avg_ticket_price', 'text_length', 'nunique_words']
@@ -22,15 +21,14 @@ def preprocess(filename):
 
     #create dummies for multi-category variables
     to_dummy_columns = ['channels', 'delivery_method', 'user_type']
-    X = pd.get_dummies(X, columns=to_dummy_columns)
+    dummies = pd.get_dummies(X[to_dummy_columns], columns=to_dummy_columns)
 
     #list categorical columns to keep, then create final dataframe
     categorical_columns = ['fraud', 'fb_published', 'has_analytics', 'has_header', 'has_logo', 'listed', 'major_country', 'fb_zero', 'check_payout']
     final_columns = numeric_columns + categorical_columns
-    X_final = X[final_columns]
+    X_final = pd.concat([X[final_columns], dummies], axis=1)
     X_final = X_final.reset_index(drop=True)
     y = X_final.pop('fraud').values
-    # X = X.reindex(columns = numeric_columns)
     # return train_test_split(X, y, test_size=.1, random_state=42, stratify=y)
     return X_final, y
 
