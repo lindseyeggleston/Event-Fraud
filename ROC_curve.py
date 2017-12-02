@@ -53,6 +53,7 @@ def _get_ROC_curve(classifier, X, y, balancing=None, pos_label=1, n_folds=5):
     mean_tpr = 0.0
     mean_fpr = np.linspace(0, 1, 400)
     all_tpr = []
+    feature_importances = np.zeros(X.shape[1])
     skf = StratifiedKFold(n_splits=n_folds, random_state=40, shuffle=True)
     for train, test in skf.split(X, y):
         X_train, y_train = X.iloc[train], y[train]
@@ -65,10 +66,14 @@ def _get_ROC_curve(classifier, X, y, balancing=None, pos_label=1, n_folds=5):
         mean_tpr[0] = 0.0
         roc_auc = auc(fpr, tpr)
         print(roc_auc)
+        feature_importances += classifier.feature_importances_
         # plt.plot(fpr, tpr, lw=1, label='ROC fold %d (area = %0.2f)' % (i, roc_auc))
     mean_tpr /= n_folds
     mean_tpr[-1] = 1.0
     mean_auc = auc(mean_fpr, mean_tpr)
+    feature_importances /= n_folds
+    for i in range(len(X.columns)):
+        print('{}: {}'.format(X.columns[i], round(feature_importances[i], 3)))
     return mean_tpr, mean_fpr, mean_auc
 
 if __name__ == '__main__':
