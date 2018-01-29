@@ -1,6 +1,8 @@
 import pandas as pd
 import re
 from collections import defaultdict
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.decomposition import NMF
 
 def special_chars(df, col, return_count=False):
     '''
@@ -71,9 +73,41 @@ def special_char_count(df, char, col_name):
             df[col] = special_chars.apply(lambda x: x[c])
 
 
+def word_matrix(df, col):
+    '''
+    '''
+    tfidf = TfidfVectorizer(max_features=5000, stop_words='english')
+    feat_names = tfidf.get_feature_names()
+    word_mat = tfidf.fit_transform(df[col]).todense()
+
+    return word_mat, feat_names
+
+
+def nnmf(word_mat, k):
+    nmf = NMF(n_components=k, max_iter=15).fit(word_mat)
+    W = nmf.transform(word_mat)
+    topic_matrix = nmf.components_
+    pass
+
+
+def print_topics(mat, n=5):
+    for topic in range(mat.shape[0]):
+        indices = mat[topic].argsort()[-1:-n-1:-1]
+        top_feat = ', '.join([feat_names[i] for i in indices])
+        print ('Top features of {}:'.format(topic), top_feat)
+
+
 if __name__ == "__main__":
-    df = pd.read_pickle('data/clean_data3.pkl')
-    special_chars(df, 'text', return_count=True)
-    special_char_count(df,'!','exclam_count')
-    special_char_count(df, ['@','&'], ['comm_at_count','amp_count'])
-    print(df.head())
+    # df = pd.read_pickle('data/clean_data3.pkl')
+    # special_chars(df, 'text', return_count=True)
+    # special_char_count(df,'!','exclam_count')
+    # special_char_count(df, ['@','&'], ['comm_at_count','amp_count'])
+    # df.to_pickle('data/clean_data4.pkl')
+
+    # print(df.head())
+
+    df = pd.read_pickle('data/clean_data4.pkl')
+
+    word_mat, feat_names = word_matrix(df,'text')
+    W = nnmf(word_mat, 20)
+    print (W.head())
