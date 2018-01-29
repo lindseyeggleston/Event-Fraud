@@ -2,7 +2,6 @@ import pandas as pd
 import re
 from collections import defaultdict
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.decomposition import NMF
 
 def special_chars(df, col, return_count=False):
     '''
@@ -71,31 +70,6 @@ def special_char_count(df, char, col_name):
         for i, c in enumerate(char):
             col = col_name[i]
             df[col] = special_chars.apply(lambda x: x[c])
-
-
-def word_matrix(df, col):
-    '''
-    '''
-    tfidf = TfidfVectorizer(max_features=5000, stop_words='english')
-    feat_names = tfidf.get_feature_names()
-    word_mat = tfidf.fit_transform(df[col]).todense()
-
-    return word_mat, feat_names
-
-
-def nnmf(word_mat, k):
-    nmf = NMF(n_components=k, max_iter=15).fit(word_mat)
-    W = nmf.transform(word_mat)
-    topic_matrix = nmf.components_
-    pass
-
-
-def print_topics(mat, n=5):
-    for topic in range(mat.shape[0]):
-        indices = mat[topic].argsort()[-1:-n-1:-1]
-        top_feat = ', '.join([feat_names[i] for i in indices])
-        print ('Top features of {}:'.format(topic), top_feat)
-
 
 if __name__ == "__main__":
     # df = pd.read_pickle('data/clean_data3.pkl')

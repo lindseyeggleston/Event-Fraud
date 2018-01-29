@@ -1,15 +1,18 @@
 import numpy as np
 import pandas as pd
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.decomposition import NMF
+from sklearn.metrics import mean_squared_error
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer, ENGLISH_STOP_WORDS
 
 class TopicAnalysis():
-    def __init__(self, docs=None, max_feat=5000):
-        self.docs = self._test_doc_type(docs)
-        self.word_mat = None
-        self._tfidf = TfidfVectorizer(max_features=max_feat, stop_words='english',
-                ngram_range = (1,3))
+    def __init__(self, docs, k, iterations):
+        self.docs = docs   # add property decorator to test doc type
+        self.k = k
+        self.iterations = iterations
+        self.V = None
         self.feat_names = None
 
+    # @property
     def _test_doc_type(self, docs, dtype=object):
         '''Tests the data type of docs argument.'''
         if isinstance(docs, pd.core.series.Series):
@@ -21,11 +24,39 @@ class TopicAnalysis():
         else:
             raise ValueError('Inappropriate input type for docs.')
 
-    def add_doc(self, doc):
-        '''Adds doc (string type) to docs attribute.'''
-        np.append(self.docs, np.array(doc).reshape(1,1), axis=0)
-
     def create_word_matrix(self):
-        self.word_mat = self._tfidf.fit_transform(self.docs).todense()
-        self.feat_names = self._tfidf.get_feature_names()
-        
+        '''Creates word matrix V from word counts across all each docs.'''
+        counts = CountVectorizer(max_features=5000, top_words=stop_words).fit(self.docs)  # ngram_range = (1,3)
+        self.V = counts.fit_transform(self.docs).todense()
+        self.feat_names = counts.get_feature_names()
+
+    def nnmf(self, k, max_iter=15):
+        nmf = NMF(n_components=k, max_iter=max_iter).fit(self.word_mat)
+        W = nmf.transform(word_mat)
+        topic_matrix = nmf.components_
+        pass
+
+    def mse():
+        return mean_squared_error(V, self.W.dot(self.H))
+
+    def print_topics(mat, n=5):
+        for topic in range(mat.shape[0]):
+            indices = mat[topic].argsort()[-1:-n-1:-1]
+            top_feat = ', '.join([feat_names[i] for i in indices])
+            print ('Top features of {}:'.format(topic), top_feat)
+
+if __name__=='__main__':
+
+    df = pd.read_pickle('data/clean_data4.pkl')
+    docs = df['text']
+
+    ## Additional Stop Words
+    stop_words = ENGLISH_STOP_WORDS.union({})
+
+    ## Tfidf Version
+    tfidf = TfidfVectorizer(max_features=5000, top_words=stop_words, ngram_range = (1,3))
+    word_mat = tfidf.fit_transform(docs).todense()
+
+    ## Count Version
+    # counts = CountVectorizer(max_features=5000, top_words=stop_words, ngram_range = (1,3))
+    # word_mat = counts.fit_transform(docs).todense()
