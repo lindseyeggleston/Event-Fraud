@@ -5,7 +5,9 @@ import profit_curve
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import StratifiedKFold
-from xgboost import XGBClassifier
+from xgboost import XGBClassifier, plot_importance
+import matplotlib.pyplot as plt
+plt.style.use('ggplot')
 
 def preprocess(filename):
     X = pd.read_pickle(filename)
@@ -29,7 +31,6 @@ def preprocess(filename):
     X_final = pd.concat([X[final_columns], dummies], axis=1)
     X_final = X_final.reset_index(drop=True)
     y = X_final.pop('fraud').values
-    # return train_test_split(X, y, test_size=.1, random_state=42, stratify=y)
     return X_final, y
 
 def _create_major_country(df):
@@ -41,12 +42,27 @@ def _org_facebook_indicator(df):
 def _check_payout_indicator(df):
     return df['payout_type'].apply(lambda x: 1 if x=='CHECK' else 0)
 
+def feature_importance(X, y, classifiers, balancing=None):
+    '''
+    Need to adjust formatting.  Also, check model performance on test set after feature dropout!
+    '''
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=42)
+    model_number = 0
+    for c in classifiers:
+        save_path = ('visuals/model_{}.png'.format(model_number))
+        c.fit(X_train, y_train)
+        plt.close('all')
+        plot_importance(c)
+        plt.savefig(save_path, dpi=600, bbox_inches='tight')
+        model_number += 1
+    return
+
 if __name__ == '__main__':
     X, y = preprocess('data/clean_data3.pkl')
-    # X_train, X_test, y_train, y_test = preprocess('data/clean_data2.pkl')
     xg1 = XGBClassifier(seed=42)
     xg2 = XGBClassifier(scale_pos_weight=10, max_delta_step=1, colsample_bytree=.5, colsample_bylevel=.8, seed=42)
     classifiers = [xg1]
     balancing = []
-    roc.plot_ROC_curve(classifiers, X, y, balancing=balancing, save_path=None)
+    # roc.plot_ROC_curve(classifiers, X, y, balancing=balancing, save_path=None)
     # profit_curve.plot_avg_profits(xg1, X, y, revenue=75, cost=25, save_path=None)
+    feature_importance(X, y, classifiers)

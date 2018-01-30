@@ -21,4 +21,7 @@ _The Model_
 #### Results
 
 
-#### Resources
+#### Resources:
+[Feature Importance and Selection with XGBoost:][Feature_Importance1] Nice tutorial/blog post by Jason Brownlee.
+
+[Feature_Importance1]: https://machinelearningmastery.com/feature-importance-and-feature-selection-with-xgboost-in-python/
