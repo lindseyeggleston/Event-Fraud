@@ -29,10 +29,12 @@ class TopicAnalysis():
         counts = CountVectorizer(max_features=5000, top_words=stop_words).fit(self.docs)  # ngram_range = (1,3)
         self.V = counts.fit_transform(self.docs).todense()
         self.feat_names = counts.get_feature_names()
+        self.W = np.random.rand(self.V.shape[0],self.k)
+        self.H = np.random.rand(self.k, self.V.shape[1])
 
-    def nnmf(self, k, max_iter=15):
-        nmf = NMF(n_components=k, max_iter=max_iter).fit(self.word_mat)
-        W = nmf.transform(word_mat)
+    def nnmf(self):
+        nmf = NMF(n_components=self.k, max_iter=self.iterations).fit(self.V)
+        W = nmf.transform(self.V)
         topic_matrix = nmf.components_
         pass
 
